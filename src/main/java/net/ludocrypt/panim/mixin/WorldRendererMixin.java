@@ -15,6 +15,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.ShaderProgram;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 
 @Mixin(WorldRenderer.class)
@@ -26,6 +27,7 @@ public class WorldRendererMixin {
 		MinecraftClient client = MinecraftClient.getInstance();
 		Camera camera = client.gameRenderer.getCamera();
 
+		RenderSystem.setShaderTexture(4, new Identifier("textures/animorph.png"));
 		float tickDelta = RenderSystem.getShaderGameTime() * 24000.0F - (client.world.getTime() % 24000.0F);
 
 		for (int i = 0; i < 6; i++) {
@@ -50,6 +52,10 @@ public class WorldRendererMixin {
 			shaderProgram.getUniform("FarFar").setFloat(client.gameRenderer.getFarDepth());
 		}
 
+		if (shaderProgram.getUniform("renderingPanorama") != null) {
+			shaderProgram.getUniform("renderingPanorama").setFloat(client.gameRenderer.isRenderingPanorama() ? 1 : 0);
+		}
+
 		MatrixStack matrixStack = new MatrixStack();
 
 		((GameRendererAccessor) client.gameRenderer).callBobViewWhenHurt(matrixStack, tickDelta);
@@ -57,8 +63,10 @@ public class WorldRendererMixin {
 			((GameRendererAccessor) client.gameRenderer).callBobView(matrixStack, tickDelta);
 		}
 
+		double fov = ((GameRendererAccessor) client.gameRenderer).callGetFov(camera, tickDelta, true);
+
 		MatrixStack basicStack = new MatrixStack();
-		basicStack.multiplyMatrix(client.gameRenderer.getBasicProjectionMatrix(((GameRendererAccessor) client.gameRenderer).callGetFov(camera, tickDelta, true)));
+		basicStack.multiplyMatrix(client.gameRenderer.getBasicProjectionMatrix(fov));
 
 		if (shaderProgram.getUniform("BasicMat") != null) {
 			shaderProgram.getUniform("BasicMat").setMat4x4(basicStack.peek().getPosition());

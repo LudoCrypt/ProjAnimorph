@@ -16,6 +16,7 @@
     "samplers": [
         { "name": "Sampler0" },
         { "name": "Sampler2" },
+        { "name": "Sampler4" },
         { "name": "Sampler5" },
         { "name": "Sampler6" },
         { "name": "Sampler7" },
@@ -37,6 +38,7 @@
         { "name": "FogColor", "type": "float", "count": 4, "values": [ 0.0, 0.0, 0.0, 0.0 ] },
         { "name": "FogShape", "type": "int", "count": 1, "values": [ 0 ] },
         { "name": "ScreenSize", "type": "float", "count": 2, "values": [ 512.0, 512.0 ] },
-        { "name": "FarFar", "type": "float", "count": 1, "values": [ 0 ] }
+        { "name": "FarFar", "type": "float", "count": 1, "values": [ 0 ] },
+        { "name": "renderingPanorama", "type": "float", "count": 1, "values": [ 0 ] }
     ]
 }

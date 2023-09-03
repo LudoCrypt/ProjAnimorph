@@ -8,10 +8,7 @@ version = project.version
 group = project.maven_group
 
 repositories {
-	maven {
-		name = 'Ladysnake Mods'
-		url = 'https://maven.ladysnake.org/releases'
-    }
+
 }
 
 dependencies {
@@ -50,11 +47,6 @@ java {
 	withSourcesJar()
 }
 
-jar {
-	from("LICENSE") {
-		rename { "${it}_${archivesBaseName}" }
-	}
-}
 
 publishing {
 	publications {

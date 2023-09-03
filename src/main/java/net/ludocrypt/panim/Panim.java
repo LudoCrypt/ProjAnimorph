@@ -4,16 +4,17 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.annotation.Nullable;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
 import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;
 
 import com.mojang.blaze3d.framebuffer.Framebuffer;
-import com.mojang.blaze3d.framebuffer.WindowFramebuffer;
+import com.mojang.blaze3d.framebuffer.SimpleFramebuffer;
 import com.mojang.blaze3d.platform.InputUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.texture.NativeImage;
@@ -31,7 +32,7 @@ public class Panim implements ClientModInitializer {
 
 	public static Vec3d oririn = Vec3d.ZERO;
 
-	public static WindowFramebuffer[] maps = new WindowFramebuffer[6];
+	public static SimpleFramebuffer[] maps = new SimpleFramebuffer[6];
 
 	public static final Logger LOGGER = LogManager.getLogger("Panim");
 
@@ -43,19 +44,18 @@ public class Panim implements ClientModInitializer {
 			if (keyBinding.wasPressed()) {
 				oririn = client.gameRenderer.getCamera().getPos();
 
-				WindowFramebuffer[] buffers = takePanorama(client, 1024, 1024);
+				SimpleFramebuffer[] buffers = takePanorama(client, 2048, 2048);
 				for (int i = 0; i < 6; i++) {
 					if (maps[i] != null) {
 						maps[i].delete();
 					}
 					maps[i] = buffers[i];
 				}
-
 			}
 		});
 	}
 
-	public static WindowFramebuffer[] takePanorama(MinecraftClient client, int width, int height) {
+	public static SimpleFramebuffer[] takePanorama(MinecraftClient client, int width, int height) {
 		int i = client.getWindow().getFramebufferWidth();
 		int j = client.getWindow().getFramebufferHeight();
 		float f = client.player.getPitch();
@@ -64,7 +64,7 @@ public class Panim implements ClientModInitializer {
 		float k = client.player.prevYaw;
 		client.gameRenderer.setBlockOutlineEnabled(false);
 
-		WindowFramebuffer[] framebuffers = new WindowFramebuffer[6];
+		SimpleFramebuffer[] framebuffers = new SimpleFramebuffer[6];
 
 		try {
 			client.worldRenderer.reloadTransparencyShader();
@@ -101,7 +101,7 @@ public class Panim implements ClientModInitializer {
 
 				client.player.prevYaw = client.player.getYaw();
 				client.player.prevPitch = client.player.getPitch();
-				WindowFramebuffer framebuffer = new WindowFramebuffer(width, height);
+				SimpleFramebuffer framebuffer = new SimpleFramebuffer(width, height, true, MinecraftClient.IS_SYSTEM_MAC);
 				framebuffer.beginWrite(true);
 
 				client.gameRenderer.setRenderingPanorama(true);
@@ -128,7 +128,6 @@ public class Panim implements ClientModInitializer {
 			client.gameRenderer.setBlockOutlineEnabled(true);
 			client.getWindow().setFramebufferWidth(i);
 			client.getWindow().setFramebufferHeight(j);
-			client.gameRenderer.setRenderingPanorama(false);
 			client.worldRenderer.reloadTransparencyShader();
 			client.getFramebuffer().beginWrite(true);
 		}
