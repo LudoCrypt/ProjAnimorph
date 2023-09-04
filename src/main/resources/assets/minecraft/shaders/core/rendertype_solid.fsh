@@ -1,4 +1,4 @@
-#version 150
+#version 400
 
 #moj_import <fog.glsl>
 
@@ -165,6 +165,10 @@ float distToCameraDistance(float depth, vec2 texCoord) {
     return length(vec3(1.0, (2.0 * texCoord - 1.0) * tan(radians(90.0) / 2.0)) * linearizeDepth(depth));
 }
 
+float truncateRound(float v, float detail) {
+	return round(v * detail) / detail;
+}
+
 void main() {
 	vec4 texturedColor = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
     if (texturedColor.a < 0.1) {
@@ -186,9 +190,10 @@ void main() {
 
 	fragColor = texturedColor;
 
-	if (fragmentDistance - (0.0003 * (fragmentDistance * fragmentDistance)) <= depthDistance) {
+	if (fragmentDistance - (0.0003 * fragmentDistance * fragmentDistance) <= depthDistance) {
 		fragColor = color;
 	}
+
 
 	if (renderingPanorama == 1.0) {
 		fragColor = texturedColor;

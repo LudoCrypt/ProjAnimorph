@@ -23,12 +23,15 @@ import net.fabricmc.fabric.impl.client.keybinding.KeyBindingRegistryImpl;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBind;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 
 public class Panim implements ClientModInitializer {
 
 	public static KeyBind keyBinding;
+	public static KeyBind changeSizeBinding;
 
 	public static Vec3d oririn = Vec3d.ZERO;
 
@@ -36,15 +39,29 @@ public class Panim implements ClientModInitializer {
 
 	public static final Logger LOGGER = LogManager.getLogger("Panim");
 
+	public static int size = 512;
+
 	@Override
 	public void onInitializeClient(ModContainer mod) {
 		keyBinding = KeyBindingRegistryImpl.registerKeyBinding(new KeyBind("panim.boot", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, "panim.cata"));
+		changeSizeBinding = KeyBindingRegistryImpl.registerKeyBinding(new KeyBind("panim.size", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_N, "panim.cata.size"));
 
 		ClientTickEvents.END.register(client -> {
+
+			if (changeSizeBinding.wasPressed()) {
+				if (client.player.isSneaking()) {
+					size = Math.max(32, size - 32);
+				} else {
+					size += 32;
+				}
+
+				client.inGameHud.getChatHud().addMessage(Text.literal("Size adjusted to " + size).formatted(Formatting.UNDERLINE));
+			}
+
 			if (keyBinding.wasPressed()) {
 				oririn = client.gameRenderer.getCamera().getPos();
 
-				SimpleFramebuffer[] buffers = takePanorama(client, 2048, 2048);
+				SimpleFramebuffer[] buffers = takePanorama(client, size, size);
 				for (int i = 0; i < 6; i++) {
 					if (maps[i] != null) {
 						maps[i].delete();
